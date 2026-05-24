@@ -853,7 +853,7 @@ export class TaskEngine {
   }
 
   /**
-   * 对齐旧实现：非 SakuraLLM 任务启动时在 API 信息后打印本轮主提示词
+   * 对齐旧实现：使用通用提示词的任务启动时在 API 信息后打印本轮主提示词
    */
   private async log_task_run_start(
     task_type: TaskType,
@@ -873,7 +873,8 @@ export class TaskEngine {
     runtime: TaskRuntimeSnapshot,
     quality_snapshot: ApiJsonValue,
   ): Promise<string | null> {
-    if (String(runtime.model["api_format"] ?? "") === "SakuraLLM") {
+    const api_format = String(runtime.model["api_format"] ?? "");
+    if (api_format === "SakuraLLM" || api_format === "Orion") {
       return null;
     }
     const builder = new PromptBuilder(

@@ -338,5 +338,41 @@
             "frequency_penalty": 0.0,
             "frequency_penalty_custom_enable": false
         }
+    },
+    {
+        "id": "preset-orion",
+        "type": "PRESET",
+        "name": "Orion",
+        "api_format": "Orion",
+        "api_url": "http://127.0.0.1:9633/v1",
+        "api_key": "no_key_required",
+        "model_id": "Orion-Qwen3-1.7B-SFT",
+        "request": {
+            "extra_headers": {},
+            "extra_body": {
+                "top_k": 20
+            },
+            "extra_headers_custom_enable": false,
+            "extra_body_custom_enable": true
+        },
+        "threshold": {
+            "input_token_limit": 256,
+            "output_token_limit": 3200,
+            "rpm_limit": 0,
+            "concurrency_limit": 0
+        },
+        "thinking": {
+            "level": "OFF"
+        },
+        "generation": {
+            "temperature": 0.3,
+            "temperature_custom_enable": true,
+            "top_p": 0.9,
+            "top_p_custom_enable": true,
+            "presence_penalty": 0.0,
+            "presence_penalty_custom_enable": false,
+            "frequency_penalty": 0.0,
+            "frequency_penalty_custom_enable": false
+        }
     }
 ]

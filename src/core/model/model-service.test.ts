@@ -658,6 +658,42 @@ describe("ModelService 远端模型能力", () => {
       ["warning", "失败的密钥：\n*******"],
     ]);
   });
+
+  it("Orion 模型连通性测试使用专用单 user JSONL prompt", async () => {
+    const { service } = await create_model_service([
+      create_model({
+        api_format: "Orion",
+        api_key: "orion-key",
+        id: "orion-test",
+        model_id: "Orion-Qwen3-1.7B-SFT-v2605",
+      }),
+    ]);
+    const request_mock = vi.spyOn(LLMClient.prototype, "request").mockResolvedValue({
+      cancelled: false,
+      degraded: false,
+      error: "",
+      input_tokens: 2,
+      output_tokens: 3,
+      response_result: '{"1":"魔导具师达莉亚永不低头"}',
+      response_think: "",
+      timeout: false,
+    });
+
+    await service.test_model({ model_id: "orion-test" });
+
+    expect(request_mock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        messages: [
+          {
+            role: "user",
+            content:
+              '将以下文本翻译为简体中文，使用JSONLINE格式输出翻译结果，只需输出翻译结果，不要额外解释：\n{"1":"魔導具師ダリヤはうつむかない"}\n',
+          },
+        ],
+      }),
+      expect.any(AbortSignal),
+    );
+  });
 });
 
 /**

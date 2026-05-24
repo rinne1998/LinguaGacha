@@ -4,7 +4,7 @@ import type { LocaleMessageSchema } from "../../types";
 export const en_us_translation_prompt_page = {
   title: "Translation Prompts",
   header: {
-    title: "Custom Translation Prompts (SakuraLLM model not supported)",
+    title: "Custom Translation Prompts (SakuraLLM / Orion models not supported)",
     description_html:
       "Add extra translation requirements such as story settings and writing styles via custom prompts" +
       "<br>" +

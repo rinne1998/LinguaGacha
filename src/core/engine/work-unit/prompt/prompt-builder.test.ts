@@ -267,6 +267,48 @@ describe("PromptBuilder", () => {
     expect(result.messages[1]?.content).toContain("根据以下术语表");
   });
 
+  it("Orion 提示词使用上文、Orion 术语表和 1-based JSONL", () => {
+    const builder = new PromptBuilder(
+      "unused",
+      { app_language: "ZH", target_language: "ZH" },
+      create_quality_snapshot({
+        glossary_enable: true,
+        glossary_entries: [
+          { src: "HP", dst: "生命值", case_sensitive: true, info: "stat" },
+          { src: "MP", dst: "魔力", case_sensitive: true },
+        ],
+      }),
+    );
+
+    const result = builder.generate_prompt_orion(["HP が足りない", "次の行"], [
+      { src: "前の文 MP" },
+    ]);
+
+    expect(result.messages).toEqual([
+      {
+        role: "user",
+        content:
+          '前の文 MP\n\n术语表：\nHP→生命值\nMP→魔力\n\n参考上文和术语表，将以下文本翻译为简体中文，使用JSONLINE格式输出翻译结果，只需输出翻译结果：\n{"1":"HP が足りない"}\n{"2":"次の行"}\n',
+      },
+    ]);
+    expect(result.console_log).toEqual(["前の文 MP", "术语表：\nHP→生命值\nMP→魔力"]);
+  });
+
+  it("Orion 无上文和术语时使用 plain 指令", () => {
+    const builder = new PromptBuilder(
+      "unused",
+      { app_language: "ZH", target_language: "ZH" },
+      create_quality_snapshot({ glossary_enable: false }),
+    );
+
+    const result = builder.generate_prompt_orion(["テスト"], []);
+
+    expect(result.messages[0]?.content).toBe(
+      '将以下文本翻译为简体中文，使用JSONLINE格式输出翻译结果，只需输出翻译结果，不要额外解释：\n{"1":"テスト"}\n',
+    );
+    expect(result.console_log).toEqual([]);
+  });
+
   it("生成普通提示词时术语关闭则不写入 user prompt", async () => {
     const app_root = await create_template_root();
     const builder = new PromptBuilder(

@@ -386,7 +386,7 @@ function read_origin(url: string): string | null {
 }
 
 /**
- * 本机模型服务不应经过系统代理，避免把 SakuraLLM 等本地服务绕到外部代理。
+ * 本机模型服务不应经过系统代理，避免把 SakuraLLM / Orion 等本地服务绕到外部代理。
  */
 function is_loopback_hostname(hostname: string): boolean {
   const normalized_hostname = hostname.toLowerCase();

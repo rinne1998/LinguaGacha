@@ -185,6 +185,7 @@ describe("model 基础模型", () => {
     expect(Model.normalize_type("CUSTOM_GOOGLE")).toBe("CUSTOM_GOOGLE");
     expect(Model.normalize_type("bad")).toBe("PRESET");
     expect(Model.normalize_api_format("Anthropic")).toBe("Anthropic");
+    expect(Model.normalize_api_format("Orion")).toBe("Orion");
     expect(Model.normalize_api_format("bad")).toBe("OpenAI");
     expect(Model.normalize_thinking_level("HIGH")).toBe("HIGH");
     expect(Model.normalize_thinking_level("bad")).toBe("OFF");

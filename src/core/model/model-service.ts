@@ -326,7 +326,7 @@ export class ModelService {
   }
 
   /**
-   * OpenAI-compatible 与 Sakura 都复用 `/models` 列表语义
+   * OpenAI-compatible、Sakura 与 Orion 都复用 `/models` 列表语义
    */
   private async fetch_openai_available_models(
     model: ModelRecord,
@@ -427,7 +427,7 @@ export class ModelService {
   }
 
   /**
-   * 模型测试提示词保持旧入口语义，Sakura 继续走纯文本翻译请求
+   * 模型测试提示词保持各专用 adapter 的最小真实请求格式
    */
   private build_model_test_messages(api_format: string): LLMMessage[] {
     if (api_format === "SakuraLLM") {
@@ -440,6 +440,15 @@ export class ModelService {
         {
           role: "user",
           content: "将下面的日文文本翻译成中文：魔導具師ダリヤはうつむかない",
+        },
+      ];
+    }
+    if (api_format === "Orion") {
+      return [
+        {
+          role: "user",
+          content:
+            '将以下文本翻译为简体中文，使用JSONLINE格式输出翻译结果，只需输出翻译结果，不要额外解释：\n{"1":"魔導具師ダリヤはうつむかない"}\n',
         },
       ];
     }

@@ -62,6 +62,7 @@ project, files, items, quality, prompts, analysis, proofreading
 - `TaskEngine` 是后台任务执行权威：全量翻译和分析经 RunCoordinator 全局运行锁、Planner、WorkUnit、Limiter、ModelKeyLease、Pipeline 和 Artifact Committer；单条翻译复用 limiter / key lease，但不占用全局后台任务锁。
 - work-unit worker 负责提示词构建、runner、pipeline 和响应处理；planning worker 只做规划期 token 计数。worker 数量不等同于 LLM 并发。
 - `src/core/llm` 是 provider policy、request policy、官方 SDK transport、ProviderClientPool 和请求结果归一的边界；任务编排和 worker 只能消费归一后的 LLM 能力，不反向持有 provider SDK 细节。
+- `SakuraLLM` 与 `Orion` 是 LLM 层专用 OpenAI-compatible 适配器：Sakura 走流式响应并把逐行文本转为 JSON map；Orion 走单 user prompt、非流式 `message.content` JSONL 响应，翻译任务不套用通用自定义提示词模板。
 
 ## 5. 数据库与 `.lg` 物理存储
 
