@@ -14,7 +14,7 @@
 - Supports one-click translation between 16 languages
   - including `Chinese`, `English`, `Japanese`, `Korean`, `Russian`, `German`, `French`, `Italian`, etc
 - Supports various text types and formats such as `Subtitle`, `E-Book`, and `Game Text`
-- Supports both local and online interfaces compatible with `OpenAI`, `Google`, `Anthropic`, `SakuraLLM`
+- Supports both local and online interfaces compatible with `OpenAI`, `Google`, `Anthropic`, `SakuraLLM`, `Orion`
 
 > <img width="2570" height="1605" alt="01" src="https://github.com/user-attachments/assets/898f6606-9c74-47db-b63e-33d544cfdf15" />
 
@@ -42,6 +42,7 @@
     - Make it executable and run `chmod +x LinguaGacha*.AppImage && ./LinguaGacha*.AppImage`
 - Obtain a reliable AI model interface (choose one):
   - [ [Local API](https://github.com/neavo/OneClickLLAMA) ] (Free, requires ≥8GB VRAM GPU, Nvidia recommended)
+  - Local Orion service: select the built-in `Orion` preset in `Model Management`, then adjust the endpoint, API key, and model ID for your service
   - [ [DeepSeek API](https://github.com/neavo/LinguaGacha/wiki/DeepSeek) ] (Paid, cost-effective, fast, high-quality, no GPU required)　`👈👈 Recommended`
 - Prepare source text:
   - `Subtitles`/`E-books` typically require no preprocessing
