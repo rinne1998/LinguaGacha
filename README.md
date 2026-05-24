@@ -12,7 +12,7 @@
 - 开箱即用，（几乎）无需设置，功能的强大，不需要通过繁琐的设置来体现
 - 支持 `中` `英` `日` `韩` `俄` `德` `法` `意` 等 16 种语言的一键互译
 - 支持 `字幕`、`电子书`、`游戏文本` 等多种文本类型与文本格式
-- 支持 `OpenAI` `Google` `Anthropic` `SakuraLLM` 等各种本地或在线接口
+- 支持 `OpenAI` `Google` `Anthropic` `SakuraLLM` `Orion` 等各种本地或在线接口
 
 > <img width="2570" height="1605" alt="01" src="https://github.com/user-attachments/assets/898f6606-9c74-47db-b63e-33d544cfdf15" />
 
@@ -40,6 +40,7 @@
     - 添加执行权限后运行 `chmod +x LinguaGacha*.AppImage && ./LinguaGacha*.AppImage`
 - 获取一个可靠的 AI 大模型接口，建议选择其一：
   - [ [本地接口](https://github.com/neavo/OneClickLLAMA) ]，免费，需至少 8G 显存的独立显卡，Nvidia 显卡为佳
+  - 本地 Orion 服务：在 `模型管理` 中选择内置 `Orion` 预设，并按实际服务调整地址、API Key 和模型 ID
   - [ [DeepSeek](https://github.com/neavo/LinguaGacha/wiki/DeepSeek) ]，需付费但便宜，速度快，质量高，无显卡要求 `👈👈 推荐`
 - 准备要翻译的文本
   - `字幕`、`电子书` 等一般不需要预处理

@@ -254,10 +254,13 @@ export class TranslationWorkUnitRunner {
       quality_snapshot,
     );
     const api_format = this.read_model_api_format(request.model);
-    const prompt_result =
-      api_format === "SakuraLLM"
-        ? prompt_builder.generate_prompt_sakura(srcs)
-        : await prompt_builder.generate_prompt(srcs, samples, precedings);
+    const prompt_result = await this.build_prompt_result(
+      prompt_builder,
+      api_format,
+      srcs,
+      samples,
+      precedings,
+    );
     return {
       done: false,
       srcs,
@@ -265,6 +268,22 @@ export class TranslationWorkUnitRunner {
       console_log: prompt_result.console_log,
       pipeline_contexts,
     };
+  }
+
+  private async build_prompt_result(
+    prompt_builder: PromptBuilder,
+    api_format: string,
+    srcs: string[],
+    samples: string[],
+    precedings: TextTaskItemRecord[],
+  ): Promise<{ messages: Array<{ role: string; content: string }>; console_log: string[] }> {
+    if (api_format === "SakuraLLM") {
+      return prompt_builder.generate_prompt_sakura(srcs);
+    }
+    if (api_format === "Orion") {
+      return prompt_builder.generate_prompt_orion(srcs, precedings);
+    }
+    return await prompt_builder.generate_prompt(srcs, samples, precedings);
   }
 
   /**

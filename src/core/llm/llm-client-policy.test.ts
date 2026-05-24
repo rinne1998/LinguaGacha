@@ -122,9 +122,32 @@ describe("LLMClientPolicy", () => {
     expect(
       LLMClientPolicy.normalize_api_url("https://sakura.example/v1/chat/completions/", "SakuraLLM"),
     ).toBe("https://sakura.example/v1");
+    expect(LLMClientPolicy.normalize_api_url("http://127.0.0.1:9633", "Orion")).toBe(
+      "http://127.0.0.1:9633/v1",
+    );
     expect(LLMClientPolicy.normalize_api_url("https://api.anthropic.com/", "Anthropic")).toBe(
       "https://api.anthropic.com",
     );
+  });
+
+  it("Orion API 格式使用独立 provider、非流式 payload 和 Orion 响应模式", async () => {
+    const policy = new LLMClientPolicy(TEST_USER_AGENT);
+
+    const resolved = policy.resolve(
+      create_body({
+        api_format: "Orion",
+        api_url: "http://127.0.0.1:8080/v1/chat/completions",
+        model_id: "Orion-Qwen3-1.7B-SFT-v2605",
+      }),
+    );
+
+    expect(resolved.provider).toBe("orion");
+    expect(resolved.base_url).toBe("http://127.0.0.1:8080/v1");
+    expect(resolved.response_mode).toBe("orion-jsonl");
+    expect(resolved.payload).toMatchObject({
+      model: "Orion-Qwen3-1.7B-SFT-v2605",
+      stream: false,
+    });
   });
 
   it("Claude thinking 开启时移除 temperature 和 top_p", async () => {

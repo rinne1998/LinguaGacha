@@ -2,8 +2,8 @@ import type { ModelApiFormat, ModelThinkingLevel } from "../../../base/model";
 import type { ApiJsonValue } from "../../api/api-types";
 import type { LLMMessage } from "../llm-types";
 
-export type RequestProvider = "openai-compatible" | "google" | "anthropic" | "sakura";
-export type RequestResponseMode = "chat-stream" | "sakura-lines";
+export type RequestProvider = "openai-compatible" | "google" | "anthropic" | "sakura" | "orion";
+export type RequestResponseMode = "chat-stream" | "sakura-lines" | "orion-jsonl";
 
 export interface ModelRequestSnapshot {
   provider: RequestProvider;

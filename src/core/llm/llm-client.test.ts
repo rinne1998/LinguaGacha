@@ -38,6 +38,29 @@ describe("LLMClient", () => {
     expect(captured_providers).toEqual(["google"]);
   });
 
+  it("Orion API 格式按独立 transport 分发", async () => {
+    const captured_providers: string[] = [];
+    const client = new LLMClient({
+      userAgent: TEST_USER_AGENT,
+      transports: {
+        orion: {
+          send: async (policy) => {
+            captured_providers.push(policy.provider);
+            return create_result({ response_result: '{"1":"你好"}' });
+          },
+        },
+      },
+    });
+
+    const result = await client.request(
+      create_body({ api_format: "Orion", model_id: "Orion-Qwen3-1.7B-SFT-v2605" }),
+      new AbortController().signal,
+    );
+
+    expect(result.response_result).toBe('{"1":"你好"}');
+    expect(captured_providers).toEqual(["orion"]);
+  });
+
   it("transport 抛错时返回完整错误结果", async () => {
     const client = new LLMClient({
       userAgent: TEST_USER_AGENT,

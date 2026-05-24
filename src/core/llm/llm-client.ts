@@ -8,6 +8,7 @@ import {
   OpenAICompatibleTransport,
   create_openai_compatible_client,
 } from "./transport/openai-compatible-transport";
+import { OrionTransport } from "./transport/orion-transport";
 import { SakuraTransport } from "./transport/sakura-transport";
 import type {
   ProviderClientFactory,
@@ -40,6 +41,7 @@ export class LLMClient implements LLMClientPort {
       "openai-compatible":
         options.transports?.["openai-compatible"] ?? new OpenAICompatibleTransport(client_pool),
       sakura: options.transports?.sakura ?? new SakuraTransport(client_pool),
+      orion: options.transports?.orion ?? new OrionTransport(client_pool),
       google: options.transports?.google ?? new GoogleTransport(client_pool),
       anthropic: options.transports?.anthropic ?? new AnthropicTransport(client_pool),
     };

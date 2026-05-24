@@ -8,10 +8,12 @@ import {
   build_openai_compatible_payload,
   normalize_openai_compatible_sdk_base_url,
 } from "./policy/openai-compatible-policy";
+import { build_orion_payload, normalize_orion_sdk_base_url } from "./policy/orion-policy";
 import { build_sakura_payload, normalize_sakura_sdk_base_url } from "./policy/sakura-policy";
 import type {
   ModelRequestSnapshot,
   ResolvedRequestPolicy,
+  RequestResponseMode,
   RequestProvider,
 } from "./policy/policy-types";
 import type { LLMMessage, LLMRequestBody } from "./llm-types";
@@ -47,7 +49,7 @@ export class LLMClientPolicy {
       messages: body.messages.map((message) => ({ ...message })),
       payload,
       timeout_ms: this.read_request_timeout_ms(body.config_snapshot),
-      response_mode: snapshot.api_format === "SakuraLLM" ? "sakura-lines" : "chat-stream",
+      response_mode: this.resolve_response_mode(snapshot),
       diagnostics: {
         run_id: body.run_id,
         work_unit_id: body.work_unit_id,
@@ -84,6 +86,9 @@ export class LLMClientPolicy {
     if (api_format === "SakuraLLM") {
       return normalize_sakura_sdk_base_url(url);
     }
+    if (api_format === "Orion") {
+      return normalize_orion_sdk_base_url(url);
+    }
     if (api_format === "OpenAI") {
       return normalize_openai_compatible_sdk_base_url(url);
     }
@@ -105,6 +110,9 @@ export class LLMClientPolicy {
     }
     if (snapshot.provider === "sakura") {
       return build_sakura_payload(snapshot, messages);
+    }
+    if (snapshot.provider === "orion") {
+      return build_orion_payload(snapshot, messages);
     }
     return build_openai_compatible_payload(snapshot, messages);
   }
@@ -150,7 +158,23 @@ export class LLMClientPolicy {
     if (api_format === "SakuraLLM") {
       return "sakura";
     }
+    if (api_format === "Orion") {
+      return "orion";
+    }
     return "openai-compatible";
+  }
+
+  /**
+   * 响应模式按 API 格式固定，供诊断与测试确认 provider 语义。
+   */
+  private resolve_response_mode(snapshot: ModelRequestSnapshot): RequestResponseMode {
+    if (snapshot.api_format === "SakuraLLM") {
+      return "sakura-lines";
+    }
+    if (snapshot.api_format === "Orion") {
+      return "orion-jsonl";
+    }
+    return "chat-stream";
   }
 
   /**

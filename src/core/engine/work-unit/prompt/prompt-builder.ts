@@ -134,6 +134,36 @@ export class PromptBuilder {
   }
 
   /**
+   * 生成 Orion SFT 训练格式提示词：可选上文、可选术语表、指令和 1-based JSONL 输入。
+   */
+  public generate_prompt_orion(
+    srcs: string[],
+    precedings: TextTaskItemRecord[],
+  ): PromptBuildResult {
+    const console_log: string[] = [];
+    const context_lines = this.build_orion_context_lines(precedings);
+    const context_text = context_lines.join("\n");
+    const glossary = this.quality_snapshot.glossary_enable
+      ? this.build_glossary_orion([...context_lines, ...srcs])
+      : "";
+    const has_context = context_text !== "";
+    const has_glossary = glossary !== "";
+    const parts: string[] = [];
+    if (has_context) {
+      parts.push(context_text);
+      console_log.push(context_text);
+    }
+    if (has_glossary) {
+      parts.push(glossary);
+      console_log.push(glossary);
+    }
+    parts.push(
+      this.build_orion_instruction(has_context, has_glossary) + this.build_orion_inputs(srcs),
+    );
+    return { messages: [{ role: "user", content: parts.join("\n\n") + "\n" }], console_log };
+  }
+
+  /**
    * 生成术语分析提示词；分析链路不混入上文或翻译控制字符示例
    */
   public async generate_glossary_prompt(srcs: string[]): Promise<PromptBuildResult> {
@@ -241,6 +271,17 @@ export class PromptBuilder {
   }
 
   /**
+   * Orion 术语格式与训练数据一致，只保留 src→dst，不携带备注。
+   */
+  public build_glossary_orion(srcs: string[]): string {
+    const result = this.build_orion_glossary_lines(srcs);
+    if (result.length === 0) {
+      return "";
+    }
+    return `术语表：\n${result.join("\n")}`;
+  }
+
+  /**
    * 控制字符示例只在系统提示词明确要求控制符时加入
    */
   public build_control_characters_samples(main: string, samples: string[]): string {
@@ -270,6 +311,15 @@ export class PromptBuilder {
       .map((line, index) => JsonTool.stringifyStrict({ [String(index)]: line }))
       .join("\n");
     return `${this.t("app.prompt.builder_input")}\n\`\`\`jsonline\n${inputs}\n\`\`\``;
+  }
+
+  /**
+   * Orion 输入使用 1-based JSONL 且不加代码块围栏。
+   */
+  public build_orion_inputs(srcs: string[]): string {
+    return srcs
+      .map((line, index) => JsonTool.stringifyStrict({ [String(index + 1)]: line }))
+      .join("\n");
   }
 
   /**
@@ -383,5 +433,49 @@ export class PromptBuilder {
       result.push(info === "" ? `${src}${separator}${dst}` : `${src}${separator}${dst} #${info}`);
     }
     return result;
+  }
+
+  private build_orion_context_lines(precedings: TextTaskItemRecord[]): string[] {
+    return precedings
+      .map((item) =>
+        String(item.src ?? "")
+          .trim()
+          .replaceAll("\n", "\\n"),
+      )
+          .filter(Boolean);
+  }
+
+  private build_orion_instruction(has_context: boolean, has_glossary: boolean): string {
+    if (has_context && has_glossary) {
+      return "参考上文和术语表，将以下文本翻译为简体中文，使用JSONLINE格式输出翻译结果，只需输出翻译结果：\n";
+    }
+    if (has_context) {
+      return "参考上文信息，将以下文本翻译为简体中文，使用JSONLINE格式输出翻译结果，只需输出翻译结果：\n";
+    }
+    if (has_glossary) {
+      return "参考术语表中的译法，将以下文本翻译为简体中文，使用JSONLINE格式输出翻译结果，只需输出翻译结果：\n";
+    }
+    return "将以下文本翻译为简体中文，使用JSONLINE格式输出翻译结果，只需输出翻译结果，不要额外解释：\n";
+  }
+
+  private build_orion_glossary_lines(srcs: string[]): string[] {
+    const full_text = srcs.join("\n");
+    const full_text_lower = full_text.toLowerCase();
+    const result: string[] = [];
+    for (const entry of this.quality_snapshot.glossary_entries) {
+      const src = String(entry["src"] ?? "").trim();
+      const dst = String(entry["dst"] ?? "").trim();
+      if (src === "" || dst === "") {
+        continue;
+      }
+      const case_sensitive = entry["case_sensitive"] === true;
+      const matched = case_sensitive
+        ? full_text.includes(src)
+        : full_text_lower.includes(src.toLowerCase());
+      if (matched) {
+        result.push(`${src}→${dst}`);
+      }
+    }
+    return result.sort();
   }
 }
